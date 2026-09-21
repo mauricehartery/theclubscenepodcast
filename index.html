@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Club Scene Podcast — AIL Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#170B2E;
+  --purple-deep:#2F1354;
+  --purple-mid:#4B1E86;
+  --purple-line: rgba(255,255,255,0.14);
+  --magenta:#E23E9C;
+  --magenta-deep:#B9227C;
+  --energia-red:#E5192B;
+  --paper:#FBF8FD;
+  --paper-line:#E7DEF0;
+  --ink-soft:#5A5170;
+  --white:#FFFFFF;
+  --win:#1E8A5B;
+  --draw:#B8862B;
+  --loss:#C23B4B;
+  --radius-card: 4px;
+  --font-display: 'Oswald', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+}
+a{color:inherit;}
+
+/* focus visibility */
+:focus-visible{outline:3px solid var(--magenta); outline-offset:2px;}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
+
+/* ---------- Header ---------- */
+.site-header{
+  background: linear-gradient(155deg, var(--ink) 0%, var(--purple-deep) 55%, var(--purple-mid) 100%);
+  color:var(--white);
+  padding: 22px clamp(12px,4vw,48px) 0;
+  position:relative;
+  overflow:hidden;
+}
+.site-header::after{
+  content:"";
+  position:absolute; inset:0;
+  background: radial-gradient(circle at 88% -10%, rgba(226,62,156,0.35), transparent 55%);
+  pointer-events:none;
+}
+.header-row{
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  max-width:1180px; margin:0 auto;
+  position:relative; z-index:1;
+}
+.mic-mark{ flex:none; }
+.mic-mark svg{ width:44px; height:44px; display:block; }
+.brand-text{ flex:1; min-width:0; }
+.brand-title{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size: clamp(20px, 3.4vw, 30px);
+  letter-spacing:0.01em;
+  margin:0; line-height:1.05;
+}
+.brand-sub{
+  margin:2px 0 0;
+  font-size:13px;
+  color:rgba(255,255,255,0.65);
+  font-weight:500;
+}
+.header-badges{
+  display:flex; align-items:center; gap:14px; flex:none; flex-wrap:wrap;
+}
+.badge-energia{
+  font-size:11px; color:rgba(255,255,255,0.55);
+  text-align:right; line-height:1.3;
+}
+.badge-energia strong{
+  display:block; color:var(--energia-red); font-weight:800; font-size:15px; letter-spacing:0.01em;
+}
+.badge-ail{
+  border:1.5px solid rgba(255,255,255,0.35);
+  border-radius:3px;
+  padding:5px 9px;
+  font-family:var(--font-display);
+  font-size:12px; font-weight:600; letter-spacing:0.06em;
+  color:rgba(255,255,255,0.85);
+  white-space:nowrap;
+}
+.spotify-link{
+  display:inline-flex; align-items:center; gap:7px;
+  background:#1ED760; color:#0B1F0E;
+  border-radius:20px; padding:8px 14px 8px 10px;
+  font-size:12.5px; font-weight:700;
+  text-decoration:none; white-space:nowrap;
+  transition: background 120ms ease, transform 120ms ease;
+}
+.spotify-link:hover{ background:#3EE778; transform:translateY(-1px); }
+.spotify-link svg{ width:16px; height:16px; flex:none; }
+.ace-link{
+  display:inline-flex; align-items:center; gap:7px;
+  background:var(--magenta); color:var(--white);
+  border-radius:20px; padding:8px 14px;
+  font-size:12.5px; font-weight:700;
+  text-decoration:none; white-space:nowrap;
+  transition: background 120ms ease, transform 120ms ease;
+}
+.ace-link:hover{ background:var(--magenta-deep); transform:translateY(-1px); }
+.ace-link svg{ width:15px; height:15px; flex:none; }
+
+.season-strip{
+  max-width:1180px; margin:18px auto 0;
+  border-top:1px solid var(--purple-line);
+  padding:14px 0;
+  position:relative; z-index:1;
+  display:flex; flex-wrap:wrap; gap:10px 28px;
+  font-size:13px; color:rgba(255,255,255,0.72);
+}
+.season-strip b{color:var(--white); font-weight:600;}
+
+/* ---------- Tabs ---------- */
+.tab-nav{
+  max-width:1180px; margin:0 auto;
+  padding: 16px 0 0;
+  display:flex; gap:6px; flex-wrap:wrap;
+  position:relative; z-index:1;
+}
+.tab-btn{
+  appearance:none; border:none; cursor:pointer;
+  background:rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.75);
+  font-family:var(--font-display);
+  font-size:14px; font-weight:500; letter-spacing:0.02em;
+  padding:10px 18px 12px;
+  border-radius:6px 6px 0 0;
+  transition: background 120ms ease, color 120ms ease;
+}
+.tab-btn:hover{ background:rgba(255,255,255,0.14); color:var(--white); }
+.tab-btn[aria-selected="true"]{
+  background:var(--paper); color:var(--purple-deep); font-weight:600;
+}
+
+/* ---------- Main layout ---------- */
+main{
+  max-width:1180px; margin:0 auto;
+  padding: 28px clamp(12px,4vw,48px) 64px;
+}
+.division-head{
+  display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+.division-head h2{
+  font-family:var(--font-display); font-weight:600;
+  font-size:26px; margin:0; color:var(--purple-deep);
+}
+.division-meta{
+  font-size:13px; color:var(--ink-soft);
+}
+
+.panel-grid{
+  display:grid;
+  grid-template-columns: minmax(0,1.15fr) minmax(0,1fr);
+  gap: 28px;
+  align-items:start;
+}
+.performers-wrap{ margin-top:24px; }
+@media (max-width: 860px){
+  .panel-grid{ grid-template-columns: 1fr; }
+}
+
+.panel{
+  background:var(--white);
+  border:1px solid var(--paper-line);
+  border-radius: var(--radius-card);
+}
+.panel-title{
+  font-family:var(--font-display); font-weight:600; font-size:13px;
+  letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--white); background:var(--purple-deep);
+  padding:10px 16px;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+}
+
+/* ---------- Standings table ---------- */
+.standings-empty{
+  padding:14px 16px; font-size:13px; color:var(--ink-soft);
+  border-bottom:1px solid var(--paper-line);
+  background: #F6EEF7;
+}
+.table-scroll{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.scroll-hint{
+  display:none;
+  font-size:11px; color:var(--ink-soft);
+  padding:6px 16px 0;
+}
+@media (max-width:640px){
+  .scroll-hint{ display:block; }
+}
+table.standings{
+  width:100%; border-collapse:collapse; font-size:13.5px;
+  min-width:520px;
+}
+table.standings th, table.standings td{
+  padding:9px 8px; text-align:center; border-bottom:1px solid var(--paper-line);
+}
+table.standings th{
+  font-family:var(--font-body); font-weight:700; font-size:11px;
+  color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em;
+  border-bottom:2px solid var(--paper-line);
+}
+table.standings td.team-cell, table.standings th.team-cell{ text-align:left; }
+table.standings td.pos{ color:var(--ink-soft); font-weight:600; width:28px; }
+table.standings td.team-name{
+  font-weight:600; cursor:pointer; text-decoration:none;
+  color:var(--ink);
+}
+table.standings td.team-name:hover{ color:var(--magenta-deep); text-decoration:underline; }
+table.standings tr:last-child td{ border-bottom:none; }
+table.standings td.pts{ font-weight:700; color:var(--purple-deep); }
+table.standings tbody tr:hover{ background:#FBF3FA; }
+
+/* ---------- Last-3 result chips (shared: table + drawer) ---------- */
+.result-chip{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:22px; height:22px; border-radius:4px;
+  font-family:var(--font-display); font-weight:600; font-size:12px;
+  color:var(--white); line-height:1;
+}
+.result-chip.w{ background:var(--win); }
+.result-chip.d{ background:var(--draw); }
+.result-chip.l{ background:var(--loss); }
+.result-chip.tbd{
+  background:transparent; border:1.5px dashed var(--paper-line); color:var(--paper-line);
+}
+td.last3-cell{ white-space:nowrap; }
+.last3-row{ display:inline-flex; gap:4px; }
+
+.scoring-key{
+  padding:10px 16px; border-bottom:1px solid var(--paper-line);
+  background:#FBF8FD;
+  font-size:11.5px; color:var(--ink-soft);
+  display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center;
+}
+.scoring-key .key-item{ display:flex; align-items:center; gap:5px; white-space:nowrap; }
+.scoring-key .result-chip{ width:19px; height:19px; font-size:11px; border-radius:3px; }
+
+.drawer-last3-row{ display:flex; gap:8px; margin-bottom:6px; }
+.drawer-last3-detail{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:8px; padding:7px 0; border-bottom:1px solid var(--paper-line); font-size:12.5px;
+}
+.drawer-last3-detail:last-child{ border-bottom:none; }
+.drawer-last3-detail .dl-opponent{ flex:1; color:var(--ink-soft); }
+.drawer-last3-detail .dl-score{ font-weight:600; }
+
+/* ---------- Top performers ---------- */
+.performers-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:0;
+}
+@media (max-width:640px){
+  .performers-grid{ grid-template-columns:1fr; }
+  .fixture-row{ padding-left:20px; font-size:13px; gap:6px; }
+  .division-head{ margin-bottom:14px; }
+  .division-head h2{ font-size:21px; }
+  .panel-title{ font-size:12px; padding:9px 13px; }
+  .panel-grid{ gap:16px; }
+  .performers-wrap{ margin-top:16px; }
+  main{ padding-top:20px; padding-bottom:44px; }
+  .season-strip{ gap:8px 18px; }
+}
+.performers-col + .performers-col{ border-left:1px solid var(--paper-line); }
+@media (max-width:640px){
+  .performers-col + .performers-col{ border-left:none; border-top:1px solid var(--paper-line); }
+}
+.performers-col-title{
+  font-family:var(--font-display); font-weight:600; font-size:12px;
+  letter-spacing:0.06em; text-transform:uppercase; color:var(--purple-deep);
+  padding:12px 16px 6px;
+}
+.performer-row{
+  display:flex; align-items:baseline; gap:10px;
+  padding:7px 16px; font-size:13.5px;
+}
+.performer-row .pf-rank{ flex:none; width:16px; color:var(--ink-soft); font-weight:600; font-size:12px; }
+.performer-row .pf-name{ flex:1; font-weight:600; }
+.performer-row .pf-club{ flex:none; color:var(--ink-soft); font-size:12px; max-width:120px; text-align:right;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.performer-row .pf-tally{ flex:none; width:28px; text-align:right; font-weight:700; color:var(--magenta-deep); }
+.performers-empty{ padding:12px 16px 16px; font-size:13px; color:var(--ink-soft); }
+
+/* ---------- Fixtures list ---------- */
+.fixtures-body{ padding: 4px 0 8px; }
+details.round-group{
+  border-bottom:1px solid var(--paper-line);
+}
+details.round-group:last-child{ border-bottom:none; }
+details.round-group summary{
+  list-style:none; cursor:pointer;
+  padding:11px 16px;
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--font-display); font-weight:500; font-size:14px;
+  color:var(--purple-deep);
+}
+details.round-group summary::-webkit-details-marker{ display:none; }
+details.round-group summary .chev{
+  transition: transform 140ms ease;
+  font-size:11px; color:var(--ink-soft);
+}
+details.round-group[open] summary .chev{ transform:rotate(90deg); }
+details.round-group summary .round-date{
+  font-family:var(--font-body); font-weight:500; font-size:12px; color:var(--ink-soft);
+  margin-left:auto;
+}
+.fixture-row{
+  display:flex; align-items:center; gap:10px;
+  padding:8px 16px 8px 40px;
+  font-size:13.5px;
+}
+.fixture-row .fx-team{ cursor:pointer; }
+.fixture-row .fx-team:hover{ color:var(--magenta-deep); text-decoration:underline; }
+.fixture-row .fx-home{ flex:1; text-align:right; }
+.fixture-row .fx-away{ flex:1; text-align:left; }
+.fixture-row .fx-vs{
+  flex:none; font-family:var(--font-display); font-size:11px; color:var(--ink-soft);
+  background:var(--paper); border:1px solid var(--paper-line);
+  border-radius:3px; padding:2px 7px;
+}
+
+/* ---------- Drawer ---------- */
+.drawer-backdrop{
+  position:fixed; inset:0; background:rgba(23,11,46,0.55);
+  opacity:0; pointer-events:none; transition:opacity 160ms ease;
+  z-index:40;
+}
+.drawer-backdrop.open{ opacity:1; pointer-events:auto; }
+.drawer{
+  position:fixed; top:0; right:0; height:100%;
+  width:min(420px, 92vw);
+  background:var(--white);
+  box-shadow:-12px 0 32px rgba(23,11,46,0.25);
+  transform:translateX(100%);
+  transition:transform 200ms ease;
+  z-index:41;
+  display:flex; flex-direction:column;
+}
+.drawer.open{ transform:translateX(0); }
+.drawer-head{
+  background: linear-gradient(135deg, var(--purple-deep), var(--purple-mid));
+  color:var(--white);
+  padding:22px 20px;
+  position:relative;
+}
+.drawer-head .drawer-division{
+  font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.65);
+}
+.drawer-head h3{
+  font-family:var(--font-display); font-weight:600; font-size:24px; margin:4px 0 0;
+}
+.drawer-close{
+  position:absolute; top:16px; right:16px;
+  background:rgba(255,255,255,0.14); border:none; color:var(--white);
+  width:30px; height:30px; border-radius:50%; cursor:pointer;
+  font-size:16px; line-height:1;
+}
+.drawer-close:hover{ background:rgba(255,255,255,0.26); }
+.drawer-body{ padding:20px; overflow-y:auto; flex:1; }
+.drawer-section-title{
+  font-family:var(--font-display); font-weight:600; font-size:12px;
+  text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft);
+  margin:0 0 10px;
+}
+.form-chips{ display:flex; gap:8px; margin-bottom:22px; }
+.form-chip{
+  width:34px; height:34px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--white);
+}
+.form-chip.w{ background:var(--win); }
+.form-chip.d{ background:var(--draw); }
+.form-chip.l{ background:var(--loss); }
+.empty-note{
+  font-size:13px; color:var(--ink-soft); background:var(--paper);
+  border:1px dashed var(--paper-line); border-radius:4px; padding:12px 14px;
+  margin-bottom:22px;
+}
+.next-fixture{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 0; border-bottom:1px solid var(--paper-line); font-size:13.5px;
+}
+.next-fixture:last-child{ border-bottom:none; }
+.next-fixture .nf-date{ font-size:11.5px; color:var(--ink-soft); width:74px; flex:none; }
+.next-fixture .nf-match{ flex:1; text-align:center; }
+.next-fixture .nf-round{
+  font-size:11px; color:var(--ink-soft); flex:none;
+  background:var(--paper); border:1px solid var(--paper-line); border-radius:3px; padding:2px 6px;
+}
+
+footer{
+  text-align:center; padding:24px 16px 48px;
+  font-size:12px; color:var(--ink-soft);
+}
+
+.listen-panel{
+  max-width:1180px; margin: 8px auto 0;
+  padding: 0 clamp(12px,4vw,48px);
+}
+.listen-panel .panel{
+  overflow:hidden;
+}
+.listen-panel iframe{
+  display:block; width:100%; border:none;
+}
+
+.sr-only{
+  position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-row">
+    <div class="mic-mark" aria-hidden="true">
+      <svg viewBox="0 0 44 44" fill="none">
+        <rect x="17" y="4" width="10" height="20" rx="5" fill="#FFFFFF"/>
+        <path d="M10 20a12 12 0 0024 0" stroke="#FFFFFF" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <line x1="22" y1="32" x2="22" y2="40" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>
+        <line x1="15" y1="40" x2="29" y2="40" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <p class="brand-title">THE CLUB SCENE PODCAST</p>
+      <p class="brand-sub">All-Ireland League Tracker — 2026/27 Season</p>
+    </div>
+    <div class="header-badges">
+      <a class="ace-link" href="https://aceofclubss9.netlify.app/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9a6 6 0 1 0 12 0 6 6 0 1 0-12 0"/><path d="M12 15v6M9 21h6"/></svg>
+        Play Ace of Clubs
+      </a>
+      <a class="spotify-link" href="https://open.spotify.com/show/670TtAzR13vrKUuoTcSR6k" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.52 17.34c-.24.36-.66.48-1.02.24-2.82-1.68-6.36-2.1-10.56-1.14-.42.12-.78-.18-.9-.54-.12-.42.18-.78.54-.9 4.56-1.02 8.52-.6 11.64 1.32.42.18.48.66.3 1.02zm1.44-3.3c-.3.42-.84.6-1.26.3-3.24-1.98-8.16-2.58-11.94-1.38-.48.12-1.02-.12-1.14-.6-.12-.48.12-1.02.6-1.14 4.38-1.32 9.78-.66 13.44 1.56.36.18.54.78.3 1.26zm.12-3.42C15.24 8.4 8.94 8.16 5.4 9.24c-.6.18-1.2-.18-1.38-.72-.18-.6.18-1.2.72-1.38 4.08-1.2 10.98-.96 15.3 1.62.54.3.72 1.02.42 1.56-.3.48-1.02.66-1.56.36z"/></svg>
+        Listen on Spotify
+      </a>
+      <div class="badge-energia">Powered by<strong>energia</strong></div>
+      <div class="badge-ail">AIL</div>
+    </div>
+  </div>
+  <div class="season-strip">
+    <span>Round 1: <b>26 September 2026</b></span>
+    <span>5 divisions tracked: <b>1A · 1B · 2A · 2B North · 2B South</b></span>
+    <span>Standings update once results are graded each round</span>
+  </div>
+  <nav class="tab-nav" role="tablist" aria-label="Divisions" id="tabNav"></nav>
+</header>
+
+<main id="mainContent"></main>
+
+<div class="listen-panel">
+  <div class="panel">
+    <div class="panel-title">Listen to the latest episode</div>
+    <iframe src="https://open.spotify.com/embed/show/670TtAzR13vrKUuoTcSR6k?utm_source=generator&theme=0"
+      height="152" frameborder="0" allowfullscreen
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+      loading="lazy" title="The Club Scene Podcast on Spotify"></iframe>
+  </div>
+</div>
+
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <button class="drawer-close" id="drawerClose" aria-label="Close team panel">&times;</button>
+    <div class="drawer-division" id="drawerDivision"></div>
+    <h3 id="drawerTeamName"></h3>
+  </div>
+  <div class="drawer-body">
+    <p class="drawer-section-title">Form — last 3</p>
+    <div id="drawerForm"></div>
+    <p class="drawer-section-title">Next up</p>
+    <div id="drawerNext"></div>
+  </div>
+</aside>
+
+<footer>The Club Scene Podcast · AIL fixtures &amp; standings, division by division · Data compiled from irishrugby.ie / finalwhistle.ie league pages</footer>
+
+<script>
+const DATA = {"1A":{"label":"Division 1A","teams":["Ballynahinch","Clontarf","Cork Constitution","Lansdowne","Old Belvedere","Old Wesley","St Mary's College","Terenure College","UCD","Young Munster"],"fixtures":[{"round":1,"date":"2026-09-26","home":"Ballynahinch","away":"UCD","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Clontarf","away":"Old Wesley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Cork Constitution","away":"Terenure College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Lansdowne","away":"St Mary's College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Young Munster","away":"Old Belvedere","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Old Belvedere","away":"Ballynahinch","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Old Wesley","away":"Cork Constitution","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"St Mary's College","away":"Clontarf","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Terenure College","away":"Young Munster","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"UCD","away":"Lansdowne","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Clontarf","away":"UCD","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Cork Constitution","away":"St Mary's College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Lansdowne","away":"Old Belvedere","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Terenure College","away":"Old Wesley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Young Munster","away":"Ballynahinch","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Ballynahinch","away":"Lansdowne","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Old Belvedere","away":"Clontarf","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Old Wesley","away":"Young Munster","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"St Mary's College","away":"Terenure College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"UCD","away":"Cork Constitution","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Clontarf","away":"Ballynahinch","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Cork Constitution","away":"Old Belvedere","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Old Wesley","away":"St Mary's College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Terenure College","away":"UCD","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Young Munster","away":"Lansdowne","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Ballynahinch","away":"Cork Constitution","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Lansdowne","away":"Clontarf","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Old Belvedere","away":"Terenure College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"St Mary's College","away":"Young Munster","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"UCD","away":"Old Wesley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Cork Constitution","away":"Lansdowne","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Old Wesley","away":"Old Belvedere","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"St Mary's College","away":"UCD","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Terenure College","away":"Ballynahinch","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Young Munster","away":"Clontarf","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Ballynahinch","away":"Old Wesley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Clontarf","away":"Cork Constitution","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Lansdowne","away":"Terenure College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Old Belvedere","away":"St Mary's College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Young Munster","away":"UCD","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Cork Constitution","away":"Young Munster","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Old Wesley","away":"Lansdowne","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"St Mary's College","away":"Ballynahinch","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Terenure College","away":"Clontarf","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"UCD","away":"Old Belvedere","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Ballynahinch","away":"St Mary's College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Clontarf","away":"Terenure College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Lansdowne","away":"Old Wesley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Old Belvedere","away":"UCD","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Young Munster","away":"Cork Constitution","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Cork Constitution","away":"Clontarf","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Old Wesley","away":"Ballynahinch","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"St Mary's College","away":"Old Belvedere","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Terenure College","away":"Lansdowne","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"UCD","away":"Young Munster","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Ballynahinch","away":"Terenure College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Clontarf","away":"Young Munster","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Lansdowne","away":"Cork Constitution","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Old Belvedere","away":"Old Wesley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"UCD","away":"St Mary's College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Clontarf","away":"Lansdowne","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Cork Constitution","away":"Ballynahinch","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Old Wesley","away":"UCD","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Terenure College","away":"Old Belvedere","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Young Munster","away":"St Mary's College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Ballynahinch","away":"Clontarf","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Lansdowne","away":"Young Munster","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Old Belvedere","away":"Cork Constitution","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"St Mary's College","away":"Old Wesley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"UCD","away":"Terenure College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Clontarf","away":"Old Belvedere","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Cork Constitution","away":"UCD","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Lansdowne","away":"Ballynahinch","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Terenure College","away":"St Mary's College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Young Munster","away":"Old Wesley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Ballynahinch","away":"Young Munster","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Old Belvedere","away":"Lansdowne","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Old Wesley","away":"Terenure College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"St Mary's College","away":"Cork Constitution","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"UCD","away":"Clontarf","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Ballynahinch","away":"Old Belvedere","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Clontarf","away":"St Mary's College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Cork Constitution","away":"Old Wesley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Lansdowne","away":"UCD","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Young Munster","away":"Terenure College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Old Belvedere","away":"Young Munster","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Old Wesley","away":"Clontarf","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"St Mary's College","away":"Lansdowne","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Terenure College","away":"Cork Constitution","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"UCD","away":"Ballynahinch","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null}],"standings":[{"team":"Ballynahinch","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Clontarf","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Cork Constitution","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Lansdowne","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Old Belvedere","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Old Wesley","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"St Mary's College","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Terenure College","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"UCD","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Young Munster","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0}],"scorers":{"tries":[],"points":[]}},"1B":{"label":"Division 1B","teams":["Blackrock College","City of Armagh","Dublin University","Garryowen","Highfield","Instonians","MU Barnhall","Naas","Nenagh Ormond","UCC"],"fixtures":[{"round":1,"date":"2026-09-26","home":"Blackrock College","away":"MU Barnhall","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"City of Armagh","away":"Dublin University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Garryowen","away":"Instonians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Highfield","away":"Nenagh Ormond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Naas","away":"UCC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Dublin University","away":"Garryowen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Instonians","away":"Highfield","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"MU Barnhall","away":"City of Armagh","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Nenagh Ormond","away":"Naas","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"UCC","away":"Blackrock College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"City of Armagh","away":"UCC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Garryowen","away":"MU Barnhall","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Highfield","away":"Dublin University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Naas","away":"Blackrock College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Nenagh Ormond","away":"Instonians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Blackrock College","away":"City of Armagh","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Dublin University","away":"Nenagh Ormond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Instonians","away":"Naas","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"MU Barnhall","away":"Highfield","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"UCC","away":"Garryowen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Garryowen","away":"Blackrock College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Highfield","away":"UCC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Instonians","away":"Dublin University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Naas","away":"City of Armagh","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Nenagh Ormond","away":"MU Barnhall","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Blackrock College","away":"Highfield","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"City of Armagh","away":"Garryowen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Dublin University","away":"Naas","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"MU Barnhall","away":"Instonians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"UCC","away":"Nenagh Ormond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Dublin University","away":"MU Barnhall","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Highfield","away":"City of Armagh","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Instonians","away":"UCC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Naas","away":"Garryowen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Nenagh Ormond","away":"Blackrock College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Blackrock College","away":"Instonians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"City of Armagh","away":"Nenagh Ormond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Garryowen","away":"Highfield","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Naas","away":"MU Barnhall","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"UCC","away":"Dublin University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Dublin University","away":"Blackrock College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Highfield","away":"Naas","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Instonians","away":"City of Armagh","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"MU Barnhall","away":"UCC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Nenagh Ormond","away":"Garryowen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Blackrock College","away":"Dublin University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"City of Armagh","away":"Instonians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Garryowen","away":"Nenagh Ormond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Naas","away":"Highfield","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"UCC","away":"MU Barnhall","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Dublin University","away":"UCC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Highfield","away":"Garryowen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Instonians","away":"Blackrock College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"MU Barnhall","away":"Naas","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Nenagh Ormond","away":"City of Armagh","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Blackrock College","away":"Nenagh Ormond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"City of Armagh","away":"Highfield","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Garryowen","away":"Naas","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"MU Barnhall","away":"Dublin University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"UCC","away":"Instonians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Garryowen","away":"City of Armagh","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Highfield","away":"Blackrock College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Instonians","away":"MU Barnhall","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Naas","away":"Dublin University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Nenagh Ormond","away":"UCC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Blackrock College","away":"Garryowen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"City of Armagh","away":"Naas","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Dublin University","away":"Instonians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"MU Barnhall","away":"Nenagh Ormond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"UCC","away":"Highfield","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Highfield","away":"MU Barnhall","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Naas","away":"Instonians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Nenagh Ormond","away":"Dublin University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Blackrock College","away":"Naas","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Dublin University","away":"Highfield","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Instonians","away":"Nenagh Ormond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"MU Barnhall","away":"Garryowen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"UCC","away":"City of Armagh","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Blackrock College","away":"City of Armagh","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Dublin University","away":"Garryowen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Highfield","away":"Instonians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Naas","away":"Nenagh Ormond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Dublin University","away":"City of Armagh","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Instonians","away":"Garryowen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"MU Barnhall","away":"Blackrock College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Nenagh Ormond","away":"Highfield","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"UCC","away":"Naas","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null}],"standings":[{"team":"Blackrock College","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"City of Armagh","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Dublin University","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Garryowen","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Highfield","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Instonians","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"MU Barnhall","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Naas","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Nenagh Ormond","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"UCC","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0}],"scorers":{"tries":[],"points":[]}},"2A":{"label":"Division 2A","teams":["Ballymena","Cashel","Galway Corinthians","Dungannon","Galwegians","Greystones","Queen's University","Shannon","UL Bohemians","Wanderers"],"fixtures":[{"round":1,"date":"2026-09-26","home":"Shannon","away":"Queen's University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Ballymena","away":"Greystones","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Cashel","away":"UL Bohemians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Dungannon","away":"Galwegians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Galway Corinthians","away":"Wanderers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Galwegians","away":"Shannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Greystones","away":"Galway Corinthians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Queen's University","away":"Cashel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"UL Bohemians","away":"Ballymena","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Wanderers","away":"Dungannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Ballymena","away":"Queen's University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Cashel","away":"Galwegians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Galway Corinthians","away":"Dungannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Greystones","away":"UL Bohemians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Shannon","away":"Wanderers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Dungannon","away":"Shannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Galwegians","away":"Ballymena","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Queen's University","away":"Greystones","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"UL Bohemians","away":"Galway Corinthians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Wanderers","away":"Cashel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Ballymena","away":"Wanderers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Cashel","away":"Dungannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Galway Corinthians","away":"Shannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Greystones","away":"Galwegians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"UL Bohemians","away":"Queen's University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Dungannon","away":"Ballymena","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Galwegians","away":"UL Bohemians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Queen's University","away":"Galway Corinthians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Shannon","away":"Cashel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Wanderers","away":"Greystones","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Ballymena","away":"Shannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Galway Corinthians","away":"Cashel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Greystones","away":"Dungannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Queen's University","away":"Galwegians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"UL Bohemians","away":"Wanderers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Cashel","away":"Ballymena","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Dungannon","away":"UL Bohemians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Galway Corinthians","away":"Galwegians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Shannon","away":"Greystones","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Wanderers","away":"Queen's University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Ballymena","away":"Galway Corinthians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Galwegians","away":"Wanderers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Greystones","away":"Cashel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Queen's University","away":"Dungannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"UL Bohemians","away":"Shannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Cashel","away":"Greystones","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Dungannon","away":"Queen's University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Galway Corinthians","away":"Ballymena","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Shannon","away":"UL Bohemians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Wanderers","away":"Galwegians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Ballymena","away":"Cashel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Galwegians","away":"Galway Corinthians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Greystones","away":"Shannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Queen's University","away":"Wanderers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"UL Bohemians","away":"Dungannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Cashel","away":"Galway Corinthians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Dungannon","away":"Greystones","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Galwegians","away":"Queen's University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Shannon","away":"Ballymena","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Wanderers","away":"UL Bohemians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Ballymena","away":"Dungannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Cashel","away":"Shannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Galway Corinthians","away":"Queen's University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Greystones","away":"Wanderers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"UL Bohemians","away":"Galwegians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Dungannon","away":"Cashel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Galwegians","away":"Greystones","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Queen's University","away":"UL Bohemians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Shannon","away":"Galway Corinthians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Wanderers","away":"Ballymena","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Ballymena","away":"Galwegians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Cashel","away":"Wanderers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Galway Corinthians","away":"UL Bohemians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Greystones","away":"Queen's University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Shannon","away":"Dungannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Dungannon","away":"Galway Corinthians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Galwegians","away":"Cashel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Queen's University","away":"Ballymena","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"UL Bohemians","away":"Greystones","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Wanderers","away":"Shannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Ballymena","away":"UL Bohemians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Cashel","away":"Queen's University","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Dungannon","away":"Wanderers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Galway Corinthians","away":"Greystones","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Shannon","away":"Galwegians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Galwegians","away":"Dungannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Greystones","away":"Ballymena","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Queen's University","away":"Shannon","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"UL Bohemians","away":"Cashel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Wanderers","away":"Galway Corinthians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null}],"standings":[{"team":"Ballymena","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Cashel","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Galway Corinthians","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Dungannon","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Galwegians","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Greystones","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Queen's University","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Shannon","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"UL Bohemians","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Wanderers","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0}],"scorers":{"tries":[],"points":[]}},"2BN":{"label":"Division 2B North","teams":["Ballyclare","Banbridge","Clogher Valley","Enniskillen","Malahide","Malone","Navan","Rainey","Skerries","Sligo"],"fixtures":[{"round":1,"date":"2026-09-26","home":"Ballyclare","away":"Sligo","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Clogher Valley","away":"Malahide","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Enniskillen","away":"Rainey","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Malone","away":"Banbridge","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Skerries","away":"Navan","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Banbridge","away":"Skerries","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Malahide","away":"Enniskillen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Navan","away":"Clogher Valley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Rainey","away":"Ballyclare","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Sligo","away":"Malone","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Ballyclare","away":"Malahide","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Clogher Valley","away":"Banbridge","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Enniskillen","away":"Navan","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Malone","away":"Skerries","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Sligo","away":"Rainey","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Banbridge","away":"Enniskillen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Malahide","away":"Sligo","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Navan","away":"Ballyclare","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Rainey","away":"Malone","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Skerries","away":"Clogher Valley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Ballyclare","away":"Banbridge","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Enniskillen","away":"Skerries","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Malone","away":"Clogher Valley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Rainey","away":"Malahide","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Sligo","away":"Navan","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Banbridge","away":"Sligo","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Clogher Valley","away":"Enniskillen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Malahide","away":"Malone","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Navan","away":"Rainey","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Skerries","away":"Ballyclare","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Ballyclare","away":"Clogher Valley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Malahide","away":"Navan","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Malone","away":"Enniskillen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Rainey","away":"Banbridge","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Sligo","away":"Skerries","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Banbridge","away":"Malahide","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Clogher Valley","away":"Sligo","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Enniskillen","away":"Ballyclare","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Malone","away":"Navan","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Skerries","away":"Rainey","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Ballyclare","away":"Malone","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Malahide","away":"Skerries","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Navan","away":"Banbridge","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Rainey","away":"Clogher Valley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Sligo","away":"Enniskillen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Banbridge","away":"Navan","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Clogher Valley","away":"Rainey","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Enniskillen","away":"Sligo","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Malone","away":"Ballyclare","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Skerries","away":"Malahide","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Ballyclare","away":"Enniskillen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Malahide","away":"Banbridge","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Navan","away":"Malone","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Rainey","away":"Skerries","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Sligo","away":"Clogher Valley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Banbridge","away":"Rainey","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Clogher Valley","away":"Ballyclare","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Enniskillen","away":"Malone","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Navan","away":"Malahide","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Skerries","away":"Sligo","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Ballyclare","away":"Skerries","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Enniskillen","away":"Clogher Valley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Malone","away":"Malahide","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Rainey","away":"Navan","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Sligo","away":"Banbridge","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Banbridge","away":"Ballyclare","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Clogher Valley","away":"Malone","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Malahide","away":"Rainey","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Navan","away":"Sligo","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Skerries","away":"Enniskillen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Ballyclare","away":"Navan","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Clogher Valley","away":"Skerries","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Enniskillen","away":"Banbridge","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Malone","away":"Rainey","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Sligo","away":"Malahide","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Banbridge","away":"Clogher Valley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Malahide","away":"Ballyclare","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Navan","away":"Enniskillen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Rainey","away":"Sligo","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Skerries","away":"Malone","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Ballyclare","away":"Rainey","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Clogher Valley","away":"Navan","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Enniskillen","away":"Malahide","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Malone","away":"Sligo","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Skerries","away":"Banbridge","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Banbridge","away":"Malone","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Malahide","away":"Clogher Valley","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Navan","away":"Skerries","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Rainey","away":"Enniskillen","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Sligo","away":"Ballyclare","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null}],"standings":[{"team":"Ballyclare","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Banbridge","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Clogher Valley","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Enniskillen","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Malahide","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Malone","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Navan","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Rainey","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Skerries","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Sligo","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0}],"scorers":{"tries":[],"points":[]}},"2BS":{"label":"Division 2B South","teams":["Bective Rangers","Bruff","Buccaneers","Clonmel","Dolphin","Enniscorthy","Midleton","Monkstown","Old Crescent","Thomond"],"fixtures":[{"round":1,"date":"2026-09-26","home":"Bective Rangers","away":"Old Crescent","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Buccaneers","away":"Bruff","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Dolphin","away":"Enniscorthy","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Monkstown","away":"Clonmel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-09-26","home":"Thomond","away":"Midleton","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Bruff","away":"Bective Rangers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Clonmel","away":"Dolphin","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Enniscorthy","away":"Thomond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Midleton","away":"Buccaneers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-03","home":"Old Crescent","away":"Monkstown","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Bective Rangers","away":"Midleton","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Dolphin","away":"Old Crescent","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Enniscorthy","away":"Clonmel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Monkstown","away":"Bruff","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-10","home":"Thomond","away":"Buccaneers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Bruff","away":"Dolphin","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Buccaneers","away":"Bective Rangers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Clonmel","away":"Thomond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Midleton","away":"Monkstown","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-10-24","home":"Old Crescent","away":"Enniscorthy","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Clonmel","away":"Old Crescent","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Dolphin","away":"Midleton","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Enniscorthy","away":"Bruff","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Monkstown","away":"Buccaneers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-10-31","home":"Thomond","away":"Bective Rangers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Bective Rangers","away":"Monkstown","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Bruff","away":"Clonmel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Buccaneers","away":"Dolphin","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Midleton","away":"Enniscorthy","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2026-11-07","home":"Old Crescent","away":"Thomond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Clonmel","away":"Midleton","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Dolphin","away":"Bective Rangers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Enniscorthy","away":"Buccaneers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Old Crescent","away":"Bruff","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2026-11-28","home":"Thomond","away":"Monkstown","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Bective Rangers","away":"Enniscorthy","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Buccaneers","away":"Clonmel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Midleton","away":"Old Crescent","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Monkstown","away":"Dolphin","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2026-12-05","home":"Thomond","away":"Bruff","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Bruff","away":"Midleton","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Clonmel","away":"Bective Rangers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Dolphin","away":"Thomond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Enniscorthy","away":"Monkstown","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2026-12-12","home":"Old Crescent","away":"Buccaneers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Bective Rangers","away":"Clonmel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Buccaneers","away":"Old Crescent","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Midleton","away":"Bruff","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Monkstown","away":"Enniscorthy","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-01-09","home":"Thomond","away":"Dolphin","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Bruff","away":"Thomond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Clonmel","away":"Buccaneers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Dolphin","away":"Monkstown","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Enniscorthy","away":"Bective Rangers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":11,"date":"2027-01-16","home":"Old Crescent","away":"Midleton","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Bective Rangers","away":"Dolphin","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Bruff","away":"Old Crescent","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Buccaneers","away":"Enniscorthy","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Midleton","away":"Clonmel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":12,"date":"2027-01-30","home":"Monkstown","away":"Thomond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Clonmel","away":"Bruff","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Dolphin","away":"Buccaneers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Enniscorthy","away":"Midleton","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Monkstown","away":"Bective Rangers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":13,"date":"2027-02-06","home":"Thomond","away":"Old Crescent","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Bective Rangers","away":"Thomond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Bruff","away":"Enniscorthy","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Buccaneers","away":"Monkstown","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Midleton","away":"Dolphin","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":14,"date":"2027-02-27","home":"Old Crescent","away":"Clonmel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Bective Rangers","away":"Buccaneers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Dolphin","away":"Bruff","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Enniscorthy","away":"Old Crescent","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Monkstown","away":"Midleton","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":15,"date":"2027-03-06","home":"Thomond","away":"Clonmel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Bruff","away":"Monkstown","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Buccaneers","away":"Thomond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Clonmel","away":"Enniscorthy","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Midleton","away":"Bective Rangers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":16,"date":"2027-03-20","home":"Old Crescent","away":"Dolphin","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Bective Rangers","away":"Bruff","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Buccaneers","away":"Midleton","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Dolphin","away":"Clonmel","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Monkstown","away":"Old Crescent","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":17,"date":"2027-03-27","home":"Thomond","away":"Enniscorthy","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Bruff","away":"Buccaneers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Clonmel","away":"Monkstown","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Enniscorthy","away":"Dolphin","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Midleton","away":"Thomond","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":18,"date":"2027-04-03","home":"Old Crescent","away":"Bective Rangers","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null}],"standings":[{"team":"Bective Rangers","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Bruff","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Buccaneers","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Clonmel","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Dolphin","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Enniscorthy","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Midleton","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Monkstown","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Old Crescent","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Thomond","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0}],"scorers":{"tries":[],"points":[]}},"W1A":{"label":"Women's Division 1A","teams":["Blackrock College","Galwegians","Old Belvedere","Railway Union","UL Bohemian","Wicklow"],"fixtures":[{"round":1,"date":"2026-10-10","home":"Blackrock College","away":"Wicklow","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-10-10","home":"Old Belvedere","away":"Galwegians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-10-10","home":"Railway Union","away":"UL Bohemian","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-17","home":"Galwegians","away":"Railway Union","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-17","home":"UL Bohemian","away":"Blackrock College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-17","home":"Wicklow","away":"Old Belvedere","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-31","home":"Blackrock College","away":"Galwegians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-31","home":"Railway Union","away":"Old Belvedere","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-31","home":"Wicklow","away":"UL Bohemian","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-11-07","home":"Galwegians","away":"UL Bohemian","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-11-07","home":"Old Belvedere","away":"Blackrock College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-11-07","home":"Railway Union","away":"Wicklow","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-11-28","home":"Blackrock College","away":"Railway Union","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-11-28","home":"UL Bohemian","away":"Old Belvedere","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-11-28","home":"Wicklow","away":"Galwegians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2027-01-09","home":"Galwegians","away":"Wicklow","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2027-01-09","home":"Old Belvedere","away":"UL Bohemian","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2027-01-09","home":"Railway Union","away":"Blackrock College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2027-01-16","home":"Blackrock College","away":"Old Belvedere","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2027-01-16","home":"UL Bohemian","away":"Galwegians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2027-01-16","home":"Wicklow","away":"Railway Union","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2027-01-30","home":"Galwegians","away":"Blackrock College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2027-01-30","home":"Old Belvedere","away":"Railway Union","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2027-01-30","home":"UL Bohemian","away":"Wicklow","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2027-03-06","home":"Blackrock College","away":"UL Bohemian","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2027-03-06","home":"Old Belvedere","away":"Wicklow","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2027-03-06","home":"Railway Union","away":"Galwegians","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-03-20","home":"Galwegians","away":"Old Belvedere","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-03-20","home":"UL Bohemian","away":"Railway Union","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-03-20","home":"Wicklow","away":"Blackrock College","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null}],"standings":[{"team":"Blackrock College","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Galwegians","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Old Belvedere","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Railway Union","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"UL Bohemian","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Wicklow","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0}],"scorers":{"tries":[],"points":[]}},"W1B":{"label":"Women's Division 1B","teams":["Ballincollig","Cooke","Ennis RFC","Enniskillen RFC","MU Barnhall","Tullow RFC"],"fixtures":[{"round":1,"date":"2026-10-10","home":"Cooke","away":"Ennis RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-10-10","home":"Enniskillen RFC","away":"Tullow RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":1,"date":"2026-10-10","home":"MU Barnhall","away":"Ballincollig","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-17","home":"Ballincollig","away":"Enniskillen RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-17","home":"Ennis RFC","away":"MU Barnhall","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":2,"date":"2026-10-17","home":"Tullow RFC","away":"Cooke","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-31","home":"Ballincollig","away":"Ennis RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-31","home":"Cooke","away":"Enniskillen RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":3,"date":"2026-10-31","home":"MU Barnhall","away":"Tullow RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-11-07","home":"Cooke","away":"Ballincollig","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-11-07","home":"Enniskillen RFC","away":"MU Barnhall","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":4,"date":"2026-11-07","home":"Tullow RFC","away":"Ennis RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-11-28","home":"Ballincollig","away":"Tullow RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-11-28","home":"Ennis RFC","away":"Enniskillen RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":5,"date":"2026-11-28","home":"MU Barnhall","away":"Cooke","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2027-01-09","home":"Cooke","away":"MU Barnhall","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2027-01-09","home":"Enniskillen RFC","away":"Ennis RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":6,"date":"2027-01-09","home":"Tullow RFC","away":"Ballincollig","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2027-01-16","home":"Ballincollig","away":"Cooke","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2027-01-16","home":"Ennis RFC","away":"Tullow RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":7,"date":"2027-01-16","home":"MU Barnhall","away":"Enniskillen RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2027-01-30","home":"Ennis RFC","away":"Ballincollig","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2027-01-30","home":"Enniskillen RFC","away":"Cooke","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":8,"date":"2027-01-30","home":"Tullow RFC","away":"MU Barnhall","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2027-03-06","home":"Cooke","away":"Tullow RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2027-03-06","home":"Enniskillen RFC","away":"Ballincollig","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":9,"date":"2027-03-06","home":"MU Barnhall","away":"Ennis RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-03-20","home":"Ballincollig","away":"MU Barnhall","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-03-20","home":"Ennis RFC","away":"Cooke","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null},{"round":10,"date":"2027-03-20","home":"Tullow RFC","away":"Enniskillen RFC","played":false,"homeScore":null,"awayScore":null,"homeTries":null,"awayTries":null}],"standings":[{"team":"Ballincollig","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Cooke","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Ennis RFC","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Enniskillen RFC","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"MU Barnhall","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0},{"team":"Tullow RFC","p":0,"w":0,"d":0,"l":0,"pf":0,"pa":0,"bp":0,"pts":0}],"scorers":{"tries":[],"points":[]}}}
+;
+const DIVISION_ORDER = ["1A","1B","2A","2BN","2BS","W1A","W1B"];
+let activeDivision = "1A";
+
+function fmtDate(iso){
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString('en-IE', { day:'numeric', month:'short' });
+}
+
+function buildTabs(){
+  const nav = document.getElementById('tabNav');
+  nav.innerHTML = DIVISION_ORDER.map(key => {
+    const label = DATA[key].label.replace('Division ','');
+    return `<button class="tab-btn" role="tab" id="tab-${key}" aria-selected="${key===activeDivision}" data-division="${key}">${label}</button>`;
+  }).join('');
+  nav.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeDivision = btn.dataset.division;
+      buildTabs();
+      renderDivision();
+    });
+  });
+}
+
+function fixturesForTeam(divKey, team){
+  return DATA[divKey].fixtures
+    .filter(f => f.home === team || f.away === team)
+    .sort((a,b) => a.round - b.round);
+}
+
+// AIL bonus-point scoring: Win=4, Draw=2, Loss=0, +1 for 4+ tries, +1 for losing by <=7.
+// Colour always follows the underlying result (W/D/L) — e.g. a 2-point loss (both
+// bonus points) still shows red, and a plain 2-point draw still shows orange, even
+// though the number is the same.
+function computeResult(fixture, team){
+  if(!fixture.played) return null;
+  const isHome = fixture.home === team;
+  const teamScore = isHome ? fixture.homeScore : fixture.awayScore;
+  const oppScore  = isHome ? fixture.awayScore : fixture.homeScore;
+  const teamTries = isHome ? fixture.homeTries : fixture.awayTries;
+  const opponent  = isHome ? fixture.away : fixture.home;
+
+  let outcome = teamScore > oppScore ? 'w' : (teamScore === oppScore ? 'd' : 'l');
+  const tryBonus = (teamTries !== null && teamTries !== undefined) ? teamTries >= 4 : false;
+  const losingBonus = outcome === 'l' && (oppScore - teamScore) <= 7;
+
+  const base = outcome === 'w' ? 4 : (outcome === 'd' ? 2 : 0);
+  const points = base + (tryBonus ? 1 : 0) + (losingBonus ? 1 : 0);
+
+  return { outcome, points, tryBonus, losingBonus, opponent, teamScore, oppScore, round: fixture.round, isHome };
+}
+
+function lastNResults(divKey, team, n){
+  const played = fixturesForTeam(divKey, team)
+    .map(f => computeResult(f, team))
+    .filter(r => r !== null);
+  return played.slice(-n); // chronological order, most recent last
+}
+
+function renderChip(result){
+  if(!result) return `<span class="result-chip tbd" title="Not yet played">&middot;</span>`;
+  const detail = `${result.outcome.toUpperCase()} vs ${result.opponent} (R${result.round})` +
+    (result.tryBonus ? ' +TBP' : '') + (result.losingBonus ? ' +LBP' : '');
+  return `<span class="result-chip ${result.outcome}" title="${detail}">${result.points}</span>`;
+}
+
+function renderScoringKey(){
+  return `
+    <div class="scoring-key">
+      <span class="key-item"><span class="result-chip w">5</span> Win + try BP</span>
+      <span class="key-item"><span class="result-chip w">4</span> Win</span>
+      <span class="key-item"><span class="result-chip d">3</span> Draw + try BP</span>
+      <span class="key-item"><span class="result-chip d">2</span> Draw</span>
+      <span class="key-item"><span class="result-chip l">2</span> Loss + 2 BP</span>
+      <span class="key-item"><span class="result-chip l">1</span> Loss + 1 BP</span>
+      <span class="key-item"><span class="result-chip l">0</span> Loss</span>
+    </div>`;
+}
+
+function renderStandingsTable(divKey){
+  const div = DATA[divKey];
+  const rows = [...div.standings].sort((a,b) => a.team.localeCompare(b.team));
+  const seasonStarted = rows.some(r => r.p > 0);
+  const emptyNote = seasonStarted ? '' :
+    `<div class="standings-empty">Season not yet underway — table shown alphabetically until Round 1 results are in.</div>`;
+  const body = rows.map((r, i) => {
+    const last3 = lastNResults(divKey, r.team, 3);
+    const chips = [0,1,2].map(slot => {
+      const missing = 3 - last3.length;
+      return slot < missing ? renderChip(null) : renderChip(last3[slot - missing]);
+    }).join('');
+    return `
+    <tr>
+      <td class="pos">${seasonStarted ? (i+1) : '—'}</td>
+      <td class="team-cell team-name" data-team="${r.team}" data-division="${divKey}" tabindex="0">${r.team}</td>
+      <td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td>
+      <td>${r.pf}</td><td>${r.pa}</td>
+      <td class="pts">${r.pts}</td>
+      <td class="last3-cell"><span class="last3-row">${chips}</span></td>
+    </tr>`;
+  }).join('');
+  return `
+    <div class="panel">
+      <div class="panel-title">League Table</div>
+      ${renderScoringKey()}
+      ${emptyNote}
+      <p class="scroll-hint">Swipe to see the full table &rarr;</p>
+      <div class="table-scroll">
+        <table class="standings">
+          <thead><tr>
+            <th></th><th class="team-cell">Club</th><th>P</th><th>W</th><th>D</th><th>L</th><th>PF</th><th>PA</th><th>Pts</th><th>Last 3</th>
+          </tr></thead>
+          <tbody>${body}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function renderFixturesPanel(divKey){
+  const div = DATA[divKey];
+  const rounds = {};
+  div.fixtures.forEach(f => { (rounds[f.round] = rounds[f.round] || []).push(f); });
+  const roundNums = Object.keys(rounds).map(Number).sort((a,b) => a-b);
+  const groups = roundNums.map((rn, idx) => {
+    const games = rounds[rn];
+    const dateLabel = fmtDate(games[0].date);
+    const rows = games.map(f => `
+      <div class="fixture-row">
+        <span class="fx-team fx-home" data-team="${f.home}" data-division="${divKey}" tabindex="0">${f.home}</span>
+        <span class="fx-vs">v</span>
+        <span class="fx-team fx-away" data-team="${f.away}" data-division="${divKey}" tabindex="0">${f.away}</span>
+      </div>`).join('');
+    return `
+      <details class="round-group" ${idx===0 ? 'open' : ''}>
+        <summary><span class="chev">&#9656;</span> Round ${rn} <span class="round-date">${dateLabel}</span></summary>
+        ${rows}
+      </details>`;
+  }).join('');
+  return `
+    <div class="panel">
+      <div class="panel-title">Fixtures — All 18 Rounds</div>
+      <div class="fixtures-body">${groups}</div>
+    </div>`;
+}
+
+function renderPerformersPanel(divKey){
+  const scorers = DATA[divKey].scorers || { tries: [], points: [] };
+  const bothEmpty = scorers.tries.length === 0 && scorers.points.length === 0;
+
+  function renderCol(list, tallyKey, label){
+    if(list.length === 0){
+      return `<div class="performers-col">
+        <div class="performers-col-title">${label}</div>
+        <div class="performers-empty">No match reports in yet — top ${label.toLowerCase()} will appear here once they do.</div>
+      </div>`;
+    }
+    const sorted = [...list].sort((a,b) => b[tallyKey] - a[tallyKey]).slice(0,8);
+    const rows = sorted.map((p, i) => `
+      <div class="performer-row">
+        <span class="pf-rank">${i+1}</span>
+        <span class="pf-name">${p.player}</span>
+        <span class="pf-club">${p.club}</span>
+        <span class="pf-tally">${p[tallyKey]}</span>
+      </div>`).join('');
+    return `<div class="performers-col">
+      <div class="performers-col-title">${label}</div>
+      ${rows}
+    </div>`;
+  }
+
+  return `
+    <div class="panel">
+      <div class="panel-title">Top Performers</div>
+      <div class="performers-grid">
+        ${renderCol(scorers.tries, 'tries', 'Top Try Scorers')}
+        ${renderCol(scorers.points, 'points', 'Top Points Scorers')}
+      </div>
+    </div>`;
+}
+
+function renderDivision(){
+  const div = DATA[activeDivision];
+  const main = document.getElementById('mainContent');
+  main.innerHTML = `
+    <div class="division-head">
+      <h2>${div.label}</h2>
+      <div class="division-meta">${div.teams.length} clubs · double round-robin · ${Math.max(...div.fixtures.map(f=>f.round))} rounds</div>
+    </div>
+    <div class="panel-grid">
+      ${renderStandingsTable(activeDivision)}
+      ${renderFixturesPanel(activeDivision)}
+    </div>
+    <div class="performers-wrap">
+      ${renderPerformersPanel(activeDivision)}
+    </div>`;
+  attachTeamHandlers();
+}
+
+function attachTeamHandlers(){
+  document.querySelectorAll('[data-team]').forEach(el => {
+    el.addEventListener('click', () => openDrawer(el.dataset.division, el.dataset.team));
+    el.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openDrawer(el.dataset.division, el.dataset.team); }
+    });
+  });
+}
+
+function openDrawer(divKey, team){
+  const div = DATA[divKey];
+  document.getElementById('drawerDivision').textContent = div.label;
+  document.getElementById('drawerTeamName').textContent = team;
+
+  const last3 = lastNResults(divKey, team, 3);
+  const formEl = document.getElementById('drawerForm');
+  if(last3.length === 0){
+    formEl.innerHTML = `<p class="empty-note">No results yet — ${team}'s form will appear here once the season is under way.</p>`;
+  } else {
+    const chipsRow = `<div class="drawer-last3-row">${last3.map(renderChip).join('')}</div>`;
+    const rows = last3.slice().reverse().map(r => `
+      <div class="drawer-last3-detail">
+        <span class="dl-opponent">${r.isHome ? 'vs' : '@'} ${r.opponent} · R${r.round}</span>
+        <span class="dl-score">${r.teamScore}-${r.oppScore}</span>
+      </div>`).join('');
+    formEl.innerHTML = chipsRow + rows;
+  }
+
+  const upcoming = fixturesForTeam(divKey, team).slice(0,3);
+  const nextEl = document.getElementById('drawerNext');
+  nextEl.innerHTML = upcoming.map(f => {
+    const opponent = f.home === team ? f.away : f.home;
+    const venue = f.home === team ? 'H' : 'A';
+    return `
+      <div class="next-fixture">
+        <span class="nf-date">${fmtDate(f.date)}</span>
+        <span class="nf-match">${venue === 'H' ? 'vs' : '@'} ${opponent}</span>
+        <span class="nf-round">R${f.round}</span>
+      </div>`;
+  }).join('') || `<p class="empty-note">No fixtures found.</p>`;
+
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer').setAttribute('aria-hidden','false');
+  document.getElementById('drawerBackdrop').classList.add('open');
+}
+
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer').setAttribute('aria-hidden','true');
+  document.getElementById('drawerBackdrop').classList.remove('open');
+}
+
+document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+document.getElementById('drawerBackdrop').addEventListener('click', closeDrawer);
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeDrawer(); });
+
+buildTabs();
+renderDivision();
+</script>
+</body>
+</html>
