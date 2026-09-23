@@ -110,6 +110,16 @@ a{color:inherit;}
 }
 .spotify-link:hover{ background:#3EE778; transform:translateY(-1px); }
 .spotify-link svg{ width:16px; height:16px; flex:none; }
+.ace-link{
+  display:inline-flex; align-items:center; gap:7px;
+  background:var(--magenta); color:var(--white);
+  border-radius:20px; padding:8px 14px;
+  font-size:12.5px; font-weight:700;
+  text-decoration:none; white-space:nowrap;
+  transition: background 120ms ease, transform 120ms ease;
+}
+.ace-link:hover{ background:var(--magenta-deep); transform:translateY(-1px); }
+.ace-link svg{ width:15px; height:15px; flex:none; }
 
 .season-strip{
   max-width:1180px; margin:18px auto 0;
@@ -440,6 +450,10 @@ footer{
       <p class="brand-sub">All-Ireland League Tracker — 2026/27 Season</p>
     </div>
     <div class="header-badges">
+      <a class="ace-link" href="https://docs.google.com/forms/d/e/1FAIpQLSeq0g1-frhF0o73g8zAcANIFJ7W2kaC8loXz_QjV_N0tnqgVw/viewform?usp=publish-editor" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9a6 6 0 1 0 12 0 6 6 0 1 0-12 0"/><path d="M12 15v6M9 21h6"/></svg>
+        Play Ace of Clubs
+      </a>
       <a class="spotify-link" href="https://open.spotify.com/show/670TtAzR13vrKUuoTcSR6k" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.52 17.34c-.24.36-.66.48-1.02.24-2.82-1.68-6.36-2.1-10.56-1.14-.42.12-.78-.18-.9-.54-.12-.42.18-.78.54-.9 4.56-1.02 8.52-.6 11.64 1.32.42.18.48.66.3 1.02zm1.44-3.3c-.3.42-.84.6-1.26.3-3.24-1.98-8.16-2.58-11.94-1.38-.48.12-1.02-.12-1.14-.6-.12-.48.12-1.02.6-1.14 4.38-1.32 9.78-.66 13.44 1.56.36.18.54.78.3 1.26zm.12-3.42C15.24 8.4 8.94 8.16 5.4 9.24c-.6.18-1.2-.18-1.38-.72-.18-.6.18-1.2.72-1.38 4.08-1.2 10.98-.96 15.3 1.62.54.3.72 1.02.42 1.56-.3.48-1.02.66-1.56.36z"/></svg>
         Listen on Spotify
