@@ -29,7 +29,7 @@
 }
 
 *{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
+html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden;}
 body{
   background:var(--paper);
   color:var(--ink);
@@ -240,6 +240,10 @@ main{
 }
 @media (max-width:640px){
   .scroll-hint{ display:block; }
+  /* Once header-badges drops below the logo row, it needs to actually claim
+     the full row width — otherwise its own flex-wrap:wrap has nothing to
+     wrap against and the three pills just overflow past the screen edge. */
+  .header-badges{ width:100%; }
 }
 table.standings{
   width:100%; border-collapse:collapse; font-size:13.5px;
