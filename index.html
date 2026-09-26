@@ -214,6 +214,10 @@ main{
   background:var(--white);
   border:1px solid var(--paper-line);
   border-radius: var(--radius-card);
+  min-width:0; /* grid/flex items default to min-width:auto, which lets a wide
+                  table inside force this panel wider than its column instead
+                  of shrinking — this is what makes .table-scroll's own
+                  overflow-x:auto actually able to kick in below. */
 }
 .panel-title{
   font-family:var(--font-display); font-weight:600; font-size:13px;
