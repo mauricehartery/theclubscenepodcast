@@ -251,8 +251,10 @@ main{
 }
 table.standings{
   width:100%; border-collapse:collapse; font-size:13.5px;
-  min-width:520px;
+  min-width:576px;
 }
+table.standings td.pd-cell.pd-pos{ color:#1a7a4a; font-weight:600; }
+table.standings td.pd-cell.pd-neg{ color:#c0392b; font-weight:600; }
 table.standings th, table.standings td{
   padding:9px 8px; text-align:center; border-bottom:1px solid var(--paper-line);
 }
@@ -697,12 +699,16 @@ function renderStandingsTable(divKey){
       const missing = 3 - last3.length;
       return slot < missing ? renderChip(null) : renderChip(last3[slot - missing]);
     }).join('');
+    const pd = r.pf - r.pa;
+    const pdLabel = pd > 0 ? `+${pd}` : `${pd}`;
+    const pdClass = pd > 0 ? 'pd-pos' : (pd < 0 ? 'pd-neg' : '');
     return `
     <tr>
       <td class="pos">${seasonStarted ? (i+1) : '—'}</td>
       <td class="team-cell team-name" data-team="${r.team}" data-division="${divKey}" tabindex="0">${r.team}</td>
       <td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td>
       <td>${r.pf}</td><td>${r.pa}</td>
+      <td class="pd-cell ${pdClass}">${pdLabel}</td>
       <td class="pts">${r.pts}</td>
       <td class="last3-cell"><span class="last3-row">${chips}</span></td>
     </tr>`;
@@ -716,7 +722,7 @@ function renderStandingsTable(divKey){
       <div class="table-scroll">
         <table class="standings">
           <thead><tr>
-            <th></th><th class="team-cell">Club</th><th>P</th><th>W</th><th>D</th><th>L</th><th>PF</th><th>PA</th><th>Pts</th><th>Last 3</th>
+            <th></th><th class="team-cell">Club</th><th>P</th><th>W</th><th>D</th><th>L</th><th>PF</th><th>PA</th><th>PD</th><th>Pts</th><th>Last 3</th>
           </tr></thead>
           <tbody>${body}</tbody>
         </table>
