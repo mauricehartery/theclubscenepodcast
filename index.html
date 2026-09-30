@@ -857,10 +857,43 @@ function aceTableHTML(idPrefix, rows){
     </div>`;
 }
 
+// Merges every month currently in ACE_DATA.months into one combined
+// leaderboard (summing correct picks + points per player, re-ranked) rather
+// than showing only the latest month on its own. Round 1 landed right at the
+// tail end of September, so a September-only table would barely mean
+// anything — this combines it with October as one period, and keeps working
+// automatically if more months get added later (label adjusts to whichever
+// months are actually present).
+function combineMonths(months){
+  if(!months || months.length === 0) return null;
+  if(months.length === 1) return { label: months[0].label, rows: months[0].rows };
+  const byPlayer = new Map();
+  months.forEach(m => {
+    m.rows.forEach(r => {
+      const key = r.name.trim().toLowerCase();
+      if(!byPlayer.has(key)){
+        byPlayer.set(key, { name: r.name, handle: r.handle, club: r.club, correct: 0, points: 0 });
+      }
+      const entry = byPlayer.get(key);
+      entry.correct += (r.correct || 0);
+      entry.points += (r.points || 0);
+      if(!entry.handle && r.handle) entry.handle = r.handle;
+      if(!entry.club && r.club) entry.club = r.club;
+    });
+  });
+  const rows = Array.from(byPlayer.values())
+    .sort((a, b) => b.points - a.points || b.correct - a.correct)
+    .map((r, i) => ({ ...r, rank: i + 1 }));
+  const labels = months.map(m => m.label);
+  const label = labels.length > 1
+    ? `${labels[0].split(' ')[0]} \u2013 ${labels[labels.length - 1]}`
+    : labels[0];
+  return { label, rows };
+}
+
 function renderAceOfClubsTab(){
   const overall = ACE_DATA.overall || [];
-  const months = ACE_DATA.months || [];
-  const latestMonth = months[months.length - 1];
+  const monthly = combineMonths(ACE_DATA.months);
   return `
     <div class="division-head">
       <h2>Ace of Clubs</h2>
@@ -870,10 +903,10 @@ function renderAceOfClubsTab(){
       <div class="panel-title">Overall Leaderboard</div>
       ${aceTableHTML('ace-overall', overall)}
     </div>
-    ${latestMonth ? `
+    ${monthly ? `
     <div class="panel">
-      <div class="panel-title">Monthly Leaderboard — ${latestMonth.label}</div>
-      ${aceTableHTML('ace-month', latestMonth.rows)}
+      <div class="panel-title">Monthly Leaderboard — ${monthly.label}</div>
+      ${aceTableHTML('ace-month', monthly.rows)}
     </div>` : ''}`;
 }
 
