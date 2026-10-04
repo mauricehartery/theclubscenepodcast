@@ -366,6 +366,12 @@ td.last3-cell{ white-space:nowrap; }
 .ace-rows .ace-row:hover{ background:#FBF3FA; }
 .ace-rank{ color:var(--ink-soft); font-weight:600; }
 .ace-name{ font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.host-badge{
+  display:inline-block; margin-left:8px; padding:2px 7px; border-radius:10px;
+  background:var(--magenta); color:#fff; font-size:9.5px; font-weight:800;
+  letter-spacing:0.06em; vertical-align:middle;
+}
+.ace-row.ace-host{ background:#FBF3FA; }
 .ace-handle, .ace-club{ color:var(--ink-soft); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .ace-correct{ text-align:right; }
 .ace-points{ text-align:right; font-weight:700; color:var(--magenta-deep); }
@@ -537,7 +543,7 @@ footer{
       <p class="brand-sub">All-Ireland League Tracker — 2026/27 Season</p>
     </div>
     <div class="header-badges">
-      <a class="ace-link" href="https://docs.google.com/forms/d/e/1FAIpQLSda4CYHANmIskw6wHwy-GZ0he6I9CwZUeRGDNnViDyoCl28PQ/viewform" target="_blank" rel="noopener">
+      <a class="ace-link" href="https://docs.google.com/forms/d/e/1FAIpQLSdRkcTR-lqb9Nv_5Afqc-2DXrIR0EXkpuW_yeLU5p9c37Sd8A/viewform" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9a6 6 0 1 0 12 0 6 6 0 1 0-12 0"/><path d="M12 15v6M9 21h6"/></svg>
         Play Ace of Clubs
       </a>
@@ -821,13 +827,18 @@ function renderPerformersPanel(divKey){
 // the source sheet (used there as a lookup key) are never brought into the
 // page, since publishing participants' contact details on a public site
 // isn't appropriate even though the numbers themselves are fair to share.
+// The three podcast hosts, matched by opaque player id (never by name, so a
+// namesake can't pick up the badge).
+const ACE_HOST_PIDS = new Set(["75eafab08681", "4031f33a9054", "1f5eef2016fa"]);
 function aceRowHTML(row){
   const handle = row.handle ? row.handle : '—';
   const club = row.club ? row.club : '—';
+  const isHost = ACE_HOST_PIDS.has(row.pid);
+  const hostBadge = isHost ? '<span class="host-badge" title="Club Scene Podcast host">HOST</span>' : '';
   return `
-    <div class="ace-row" data-search="${(row.name+' '+handle+' '+club).toLowerCase()}">
+    <div class="ace-row${isHost ? ' ace-host' : ''}" data-search="${(row.name+' '+handle+' '+club+(isHost ? ' host' : '')).toLowerCase()}">
       <span class="ace-rank">${row.rank}</span>
-      <span class="ace-name">${row.name}</span>
+      <span class="ace-name">${row.name}${hostBadge}</span>
       <span class="ace-handle">${handle}</span>
       <span class="ace-club">${club}</span>
       <span class="ace-correct">${row.correct}</span>
