@@ -353,7 +353,7 @@ td.last3-cell{ white-space:nowrap; }
 .ace-search:focus{ outline:2px solid var(--magenta); outline-offset:-1px; }
 .ace-table{ font-size:13.5px; }
 .ace-row{
-  display:grid; grid-template-columns: 36px 1.6fr 1fr 1.3fr 60px 60px;
+  display:grid; grid-template-columns: 44px 1.6fr 1fr 1.3fr 60px 60px;
   gap:8px; align-items:center; padding:9px 16px;
   border-bottom:1px solid var(--paper-line);
 }
@@ -378,7 +378,7 @@ td.last3-cell{ white-space:nowrap; }
 .ace-no-match{ padding:20px 16px; text-align:center; color:var(--ink-soft); font-size:13.5px; }
 .ace-rows{ max-height:520px; overflow-y:auto; }
 @media (max-width:640px){
-  .ace-row{ grid-template-columns: 26px 1.4fr 0.9fr 60px 50px; gap:6px; padding:8px 12px; font-size:12.5px; }
+  .ace-row{ grid-template-columns: 38px 1.4fr 0.9fr 60px 50px; gap:6px; padding:8px 12px; font-size:12.5px; }
   .ace-club{ display:none; }
 }
 
@@ -847,7 +847,7 @@ function aceRowHTML(row){
   const hostBadge = isHost ? '<span class="host-badge" title="Club Scene Podcast host">HOST</span>' : '';
   return `
     <div class="ace-row${isHost ? ' ace-host' : ''}" data-search="${(row.name+' '+handle+' '+club+(isHost ? ' host' : '')).toLowerCase()}">
-      <span class="ace-rank">${row.rank}</span>
+      <span class="ace-rank">${row.rankLabel || row.rank}</span>
       <span class="ace-name">${row.name}${hostBadge}</span>
       <span class="ace-handle">${handle}</span>
       <span class="ace-club">${club}</span>
@@ -856,7 +856,24 @@ function aceRowHTML(row){
     </div>`;
 }
 
+// Ties: players on the same points total share a rank and are marked "T"
+// (e.g. T3). Computed per table, from the rows as given, so overall / monthly /
+// weekly each get their own correct tie markers.
+function withTieRanks(rows){
+  const counts = new Map();
+  rows.forEach(r => counts.set(r.points, (counts.get(r.points) || 0) + 1));
+  let higher = 0, lastPoints = null, lastRank = 0;
+  const sorted = [...rows].sort((a, b) => b.points - a.points);
+  const rankByPoints = new Map();
+  sorted.forEach(r => {
+    if (r.points !== lastPoints) { lastRank = higher + 1; lastPoints = r.points; rankByPoints.set(r.points, lastRank); }
+    higher++;
+  });
+  return rows.map(r => ({ ...r, rankLabel: (counts.get(r.points) > 1 ? 'T' : '') + rankByPoints.get(r.points) }));
+}
+
 function aceTableHTML(idPrefix, rows){
+  rows = withTieRanks(rows);
   return `
     <div class="ace-search-wrap">
       <input type="text" class="ace-search" id="${idPrefix}-search" placeholder="Find a name, handle or club…" aria-label="Filter leaderboard">
