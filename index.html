@@ -342,7 +342,8 @@ td.last3-cell{ white-space:nowrap; }
 .scoring-key .key-item{ display:flex; align-items:center; gap:5px; white-space:nowrap; }
 .scoring-key .result-chip{ width:19px; height:19px; font-size:11px; border-radius:3px; }
 
-.drawer-last3-row{ display:flex; gap:8px; margin-bottom:6px; }
+.drawer-last3-row{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+.drawer-last3-detail .result-chip{ flex:none; width:20px; height:20px; font-size:11px; }
 .drawer-last3-detail{
   display:flex; align-items:center; justify-content:space-between;
   gap:8px; padding:7px 0; border-bottom:1px solid var(--paper-line); font-size:12.5px;
@@ -619,7 +620,7 @@ footer{
     <h3 id="drawerTeamName"></h3>
   </div>
   <div class="drawer-body">
-    <p class="drawer-section-title">Form — last 3</p>
+    <p class="drawer-section-title">Results this season</p>
     <div id="drawerForm"></div>
     <p class="drawer-section-title">Next up</p>
     <div id="drawerNext"></div>
@@ -1046,7 +1047,7 @@ function openDrawer(divKey, team){
   document.getElementById('drawerDivision').textContent = div.label;
   document.getElementById('drawerTeamName').textContent = team;
 
-  const last3 = lastNResults(divKey, team, 3);
+  const last3 = lastNResults(divKey, team, 999);
   const formEl = document.getElementById('drawerForm');
   if(last3.length === 0){
     formEl.innerHTML = `<p class="empty-note">No results yet — ${team}'s form will appear here once the season is under way.</p>`;
@@ -1054,6 +1055,7 @@ function openDrawer(divKey, team){
     const chipsRow = `<div class="drawer-last3-row">${last3.map(renderChip).join('')}</div>`;
     const rows = last3.slice().reverse().map(r => `
       <div class="drawer-last3-detail">
+        <span class="result-chip ${r.outcome}">${r.outcome.toUpperCase()}</span>
         <span class="dl-opponent">${r.isHome ? 'vs' : '@'} ${r.opponent} · R${r.round}</span>
         <span class="dl-score">${r.teamScore}-${r.oppScore}</span>
       </div>`).join('');
