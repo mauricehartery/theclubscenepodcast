@@ -839,14 +839,14 @@ function renderPerformersPanel(divKey){
     }
     // Ties share a rank and are marked "T" (e.g. T2). Ranks are worked out
     // against the full list, so a player tied at 2nd is T2 whether or not
-    // everyone they're tied with fits in the top 8. Ties are ordered A–Z so
+    // everyone they're tied with fits in the top 5. Ties are ordered A–Z so
     // the order is consistent.
     const full = [...list].sort((a,b) => (b[tallyKey] - a[tallyKey]) || a.player.localeCompare(b.player));
     const rankOf = p => 1 + full.filter(q => q[tallyKey] > p[tallyKey]).length;
     const isTied = p => full.filter(q => q[tallyKey] === p[tallyKey]).length > 1;
-    // Top 8, plus anyone tied on the same tally as 8th place so nobody is
+    // Top 5, plus anyone tied on the same tally as 5th place so nobody is
     // left out of a tie at the cut-off.
-    const cutoff = full.length > 8 ? full[7][tallyKey] : null;
+    const cutoff = full.length > 5 ? full[4][tallyKey] : null;
     const sorted = cutoff === null ? full : full.filter(p => p[tallyKey] >= cutoff);
     const rows = sorted.map((p, i) => `
       <div class="performer-row">
