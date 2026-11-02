@@ -959,7 +959,7 @@ function combineMonths(months){
       // name alone would wrongly merge their separate scores together.
       const key = r.pid;
       if(!byPlayer.has(key)){
-        byPlayer.set(key, { name: r.name, handle: r.handle, club: r.club, correct: 0, points: 0 });
+        byPlayer.set(key, { pid: r.pid, name: r.name, handle: r.handle, club: r.club, correct: 0, points: 0 });
       }
       const entry = byPlayer.get(key);
       entry.correct += (r.correct || 0);
