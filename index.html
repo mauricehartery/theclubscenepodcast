@@ -488,6 +488,13 @@ details.round-group summary .round-date{
   color:#fff; background:var(--magenta-deep); font-weight:700; width:auto; padding:1px 7px; border-radius:4px; font-family:var(--font-display);
 }
 .fx-aa-note{ padding:0 20px 8px; font-size:11.5px; color:var(--magenta-deep); text-align:center; font-weight:600; }
+.fx-pos{ display:inline-block; font-size:10px; line-height:1.5; font-weight:600; color:var(--ink-soft); background:var(--paper); border:1px solid var(--paper-line); border-radius:3px; padding:0 4px; margin:0 6px; vertical-align:1px; }
+.fixture-row .fx-team{ min-width:0; }
+@media (max-width:520px){
+  .fixture-row{ padding:8px 12px; gap:6px; font-size:13px; }
+  .fixture-row .fx-pos{ margin:0 3px; }
+  .fixture-row .fx-when{ width:auto; min-width:44px; }
+}
 .fixture-row .fx-team.fx-winner{ font-weight:700; color:var(--ink); }
 
 /* ---------- Drawer ---------- */
@@ -779,6 +786,35 @@ function renderStandingsTable(divKey){
     </div>`;
 }
 
+function leaguePositions(divKey, beforeRound){
+  // League position of every team going into `beforeRound`, from all played
+  // fixtures in earlier rounds: 4 for a win, 2 for a draw, +1 for 4+ tries,
+  // +1 for a loss by 7 or fewer. Sorted by Pts, then PD, then PF.
+  const div = DATA[divKey];
+  const t = {};
+  div.teams.forEach(n => { t[n] = {n, pts:0, pf:0, pa:0, p:0}; });
+  div.fixtures.forEach(f => {
+    if (!f.played || f.abandoned || f.round >= beforeRound) return;
+    const h = t[f.home], a = t[f.away];
+    if (!h || !a) return;
+    h.p++; a.p++;
+    h.pf += f.homeScore; h.pa += f.awayScore; a.pf += f.awayScore; a.pa += f.homeScore;
+    if (f.homeScore > f.awayScore) h.pts += 4; else if (f.homeScore < f.awayScore) a.pts += 4; else { h.pts += 2; a.pts += 2; }
+    if ((f.homeTries || 0) >= 4) h.pts++;
+    if ((f.awayTries || 0) >= 4) a.pts++;
+    if (f.homeScore < f.awayScore && f.awayScore - f.homeScore <= 7) h.pts++;
+    if (f.awayScore < f.homeScore && f.homeScore - f.awayScore <= 7) a.pts++;
+  });
+  const rows = Object.values(t).sort((x,y) => (y.pts-x.pts) || ((y.pf-y.pa)-(x.pf-x.pa)) || (y.pf-x.pf) || x.n.localeCompare(y.n));
+  const pos = {};
+  rows.forEach((r,i) => { if (rows.some(q => q.p > 0)) pos[r.n] = i+1; });
+  return pos;
+}
+function ordinal(n){
+  const s = ['th','st','nd','rd'], v = n % 100;
+  return n + (s[(v-20)%10] || s[v] || s[0]);
+}
+
 function renderFixturesPanel(divKey){
   const div = DATA[divKey];
   const rounds = {};
@@ -796,6 +832,8 @@ function renderFixturesPanel(divKey){
     const primaryDate = Object.keys(dateCounts).sort((a,b) => dateCounts[b]-dateCounts[a])[0];
     const anyOffStandard = games.some(f => f.date !== primaryDate || f.time !== div.kickoff.time);
     const dateLabel = fmtDate(primaryDate) + (anyOffStandard ? ' *' : '');
+    const posMap = leaguePositions(divKey, rn);
+    const posTag = n => posMap[n] ? `<small class="fx-pos" title="League position going into this match">${ordinal(posMap[n])}</small>` : '';
     const rows = games.map(f => {
       let fxWhen;
       if (f.abandoned) {
@@ -812,9 +850,9 @@ function renderFixturesPanel(divKey){
       const awayWon = f.played && f.awayScore > f.homeScore;
       return `
       <div class="fixture-row">
-        <span class="fx-team fx-home ${homeWon ? 'fx-winner' : ''}" data-team="${f.home}" data-division="${divKey}" tabindex="0">${f.home}</span>
+        <span class="fx-team fx-home ${homeWon ? 'fx-winner' : ''}" data-team="${f.home}" data-division="${divKey}" tabindex="0">${f.home}${posTag(f.home)}</span>
         <span class="fx-vs">v</span>
-        <span class="fx-team fx-away ${awayWon ? 'fx-winner' : ''}" data-team="${f.away}" data-division="${divKey}" tabindex="0">${f.away}</span>
+        <span class="fx-team fx-away ${awayWon ? 'fx-winner' : ''}" data-team="${f.away}" data-division="${divKey}" tabindex="0">${posTag(f.away)}${f.away}</span>
         ${fxWhen}
       </div>${f.abandoned ? `<div class="fx-aa-note">Abandoned (${f.abandonedReason || 'A-A'}) &mdash; to be refixed for another date</div>` : ''}`;
     }).join('');
@@ -827,7 +865,7 @@ function renderFixturesPanel(divKey){
   return `
     <div class="panel">
       <div class="panel-title">Fixtures — All ${totalRounds} Rounds</div>
-      <p class="kickoff-note">Standard kick-off is ${div.kickoff.day}s at ${div.kickoff.time}. Fixtures marked * kick off on a different day or time — always double-check nearer the date for anything not marked.</p>
+      <p class="kickoff-note">Standard kick-off is ${div.kickoff.day}s at ${div.kickoff.time}. Fixtures marked * kick off on a different day or time — always double-check nearer the date for anything not marked. The small number beside each team is its league position going into that match.</p>
       <div class="fixtures-body">${groups}</div>
     </div>`;
 }
@@ -1096,12 +1134,15 @@ function openDrawer(divKey, team){
     formEl.innerHTML = `<p class="empty-note">No results yet — ${team}'s form will appear here once the season is under way.</p>`;
   } else {
     const chipsRow = `<div class="drawer-last3-row">${last3.map(renderChip).join('')}</div>`;
-    const rows = last3.slice().reverse().map(r => `
+    const rows = last3.slice().reverse().map(r => {
+      const pm = leaguePositions(divKey, r.round);
+      const tag = n => pm[n] ? `<small class="fx-pos" title="League position going into this match">${ordinal(pm[n])}</small>` : '';
+      return `
       <div class="drawer-last3-detail">
         <span class="result-chip ${r.outcome}">${r.outcome.toUpperCase()}</span>
-        <span class="dl-opponent">${r.isHome ? 'vs' : '@'} ${r.opponent} · R${r.round}</span>
+        <span class="dl-opponent">${tag(team)} ${r.isHome ? 'vs' : '@'} ${r.opponent} ${tag(r.opponent)} · R${r.round}</span>
         <span class="dl-score">${r.teamScore}-${r.oppScore}</span>
-      </div>`).join('');
+      </div>`; }).join('');
     formEl.innerHTML = chipsRow + rows;
   }
 
@@ -1112,10 +1153,12 @@ function openDrawer(divKey, team){
   nextEl.innerHTML = upcoming.map(f => {
     const opponent = f.home === team ? f.away : f.home;
     const venue = f.home === team ? 'H' : 'A';
+    const pm = leaguePositions(divKey, f.round);
+    const tag = n => pm[n] ? `<small class="fx-pos" title="League position going into this match">${ordinal(pm[n])}</small>` : '';
     return `
       <div class="next-fixture">
         <span class="nf-date">${f.abandoned ? 'A-A' : fmtDate(f.date)}</span>
-        <span class="nf-match">${venue === 'H' ? 'vs' : '@'} ${opponent}</span>
+        <span class="nf-match">${venue === 'H' ? 'vs' : '@'} ${opponent} ${tag(opponent)}</span>
         <span class="nf-round">${f.abandoned ? 'To be refixed &middot; ' : ''}R${f.round}</span>
       </div>`;
   }).join('') || `<p class="empty-note">No fixtures found.</p>`;
